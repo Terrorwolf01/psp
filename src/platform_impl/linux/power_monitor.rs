@@ -66,7 +66,7 @@ impl PowerMonitor {
             if let Ok(args) = signal.args() {
               if *args.start() {
                 let sender = PowerEventChannel::sender();
-                let _ = sender.send(PowerState::Suspend);
+                let _ = sender.send(PowerState::Shutdown);
               }
             }
           }

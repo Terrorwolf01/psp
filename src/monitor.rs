@@ -10,6 +10,7 @@ pub enum PowerState {
   Unknown,
   Suspend,
   Resume,
+  Shutdown,
   ScreenLocked,
   ScreenUnlocked,
 }
