@@ -3,11 +3,14 @@ use std::sync::OnceLock;
 
 use crate::platform_impl;
 
+pub type Error = Box<dyn std::error::Error + Send + Sync>;
+
 #[derive(Debug, Clone, Copy)]
 pub enum PowerState {
   Unknown,
   Suspend,
   Resume,
+  Shutdown,
   ScreenLocked,
   ScreenUnlocked,
 }
@@ -39,7 +42,7 @@ impl PowerMonitor {
     Self { monitor }
   }
 
-  pub fn start_listening(&self) -> Result<(), &'static str> {
+  pub fn start_listening(&self) -> Result<(), Error> {
     self.monitor.start_listening()
   }
 

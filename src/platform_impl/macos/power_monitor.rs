@@ -12,10 +12,6 @@ use objc::{
   runtime::{Class, Object, Sel},
 };
 
-struct PowerMonitorClass(*const Class);
-unsafe impl Send for PowerMonitorClass {}
-unsafe impl Sync for PowerMonitorClass {}
-
 pub struct PowerMonitor {
   monitor: id,
 }
@@ -31,7 +27,7 @@ impl PowerMonitor {
     }
   }
 
-  pub fn start_listening(&self) -> Result<(), &'static str> {
+  pub fn start_listening(&self) -> Result<(), crate::monitor::Error> {
     unsafe {
       let _: id = msg_send![self.monitor, init_monitor];
     }
