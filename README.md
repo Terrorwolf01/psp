@@ -22,6 +22,8 @@ Resume from sleep mode
 #### Suspend
 Turn your computer into sleep mode
 
+#### Shutdown (Unix only)
+
 ## Examples
 
 ### With [Tao](https://github.com/tauri-apps/tao)
