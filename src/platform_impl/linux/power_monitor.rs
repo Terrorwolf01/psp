@@ -25,9 +25,6 @@ trait Manager {
   default_path = "/org/freedesktop/login1/session/auto"
 )]
 trait Session {
-  #[zbus(signal)]
-  fn unlock(&self) -> zbus::Result<()>;
-
   #[zbus(property)]
   fn locked_hint(&self) -> Result<bool>;
   #[zbus(property)]
@@ -54,7 +51,6 @@ impl PowerMonitor {
     let login_session_proxy = SessionProxyBlocking::builder(&system_bus)
       .path(session_obj_path)?
       .build()?;
-    let mut unlock = login_session_proxy.receive_unlock()?;
     let mut locked_hint = login_session_proxy.receive_locked_hint_changed();
     let runtime = tokio::runtime::Runtime::new()?;
 
@@ -86,20 +82,19 @@ impl PowerMonitor {
           }
         }));
         handles.push(tokio::spawn(async move {
+          // Ignore the first signal that is sent on subscription and does not indicate a change in state.
+          let _ = locked_hint.next();
+
           while let Some(v) = locked_hint.next() {
             let Ok(status) = v.get() else {
               continue;
             };
-            if status {
-              let sender = PowerEventChannel::sender();
-              let _ = sender.send(PowerState::ScreenLocked);
-            }
-          }
-        }));
-        handles.push(tokio::spawn(async move {
-          while unlock.next().is_some() {
             let sender = PowerEventChannel::sender();
-            let _ = sender.send(PowerState::ScreenUnlocked);
+            let _ = sender.send(if status {
+              PowerState::ScreenLocked
+            } else {
+              PowerState::ScreenUnlocked
+            });
           }
         }));
 
